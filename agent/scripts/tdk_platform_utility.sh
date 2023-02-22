@@ -37,9 +37,20 @@ getCMMACAddress()
     echo $macaddress
 }
 
+#Start the DNS queries and check the query result status after the sleep
+getQueryResult()
+{
+    `dmcli eRT setv Device.Diagnostics.X_RDK_DNSInternet.WANInterface.$((index)).QueryNow bool true > /dev/null`
+    usleep $((sleepTime))
+    result=`dmcli eRT getv Device.Diagnostics.X_RDK_DNSInternet.WANInterface.$((index)).QueryNowResult | grep value |  awk '{print $5}' | tr '\n' ' '`
+    echo $result
+}
+
 # Store the arguments to a variable
 event=$1
 processName=$2
+sleepTime=$2
+index=$3
 
 # Invoke the function based on the argument passed
 case $event in
@@ -49,5 +60,7 @@ case $event in
         killProcess;;
    "getCMMACAddress")
         getCMMACAddress;;
+   "getQueryResult")
+        getQueryResult;;
    *) echo "Invalid Argument passed";;
 esac
